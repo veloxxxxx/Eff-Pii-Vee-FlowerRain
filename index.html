@@ -69,6 +69,16 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
     <svg width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
     <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;margin-left:-8px;margin-top:-8px;pointer-events:none;"></div>
   </div>
+  <div id="desk-sticks" style="display:flex;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);gap:10px;pointer-events:none;z-index:5;">
+    <div id="desk-left" style="position:relative;width:90px;height:90px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
+      <svg width="100%" height="100%" style="position:absolute;top:0;left:0;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
+      <div class="knob" style="position:absolute;left:50%;top:50%;width:10px;height:10px;background:#ff66bb;margin-left:-5px;margin-top:-5px;"></div>
+    </div>
+    <div id="desk-right" style="position:relative;width:90px;height:90px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
+      <svg width="100%" height="100%" style="position:absolute;top:0;left:0;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
+      <div class="knob" style="position:absolute;left:50%;top:50%;width:10px;height:10px;background:#ff66bb;margin-left:-5px;margin-top:-5px;"></div>
+    </div>
+  </div>
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:transparent;padding:4px 10px;border:0.5px solid #00ff9944;border-radius:6px;">
     <span style="color:#00ff99cc;font-size:10px;font-family:'Space Mono',monospace;">scale</span>
     <input type="range" min="0.3" max="1.6" step="0.001" value="1" style="width:120px;accent-color:#00ff99;background:transparent;" oninput="setViewportScale(+this.value)">
@@ -76,7 +86,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   </div>
 </div>
 
-<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.5</div>
+<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.7</div>
 
 </div>
 
@@ -146,13 +156,24 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
         <summary><span class="sec-title">Sensitivity</span></summary>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
           <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">all PRY</span><span id="sv-rate">10.0</span></div>
-          <input type="range" min="0" max="20" step="0.1" value="10" style="accent-color:#00ff99;" oninput="setRateAll(+this.value)"></div>
+          <input type="range" min="0" max="50" step="0.1" value="10" style="accent-color:#00ff99;" oninput="setRateAll(+this.value)"></div>
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:6px;"><span style="color:var(--color-text-secondary);">pitch</span><span id="sv-pitch">10.0</span></div>
-          <input type="range" id="sl-pitch" min="0" max="20" step="0.1" value="10" oninput="sens.pitch=+this.value;document.getElementById('sv-pitch').textContent=(+this.value).toFixed(1)"></div>
+          <input type="range" id="sl-pitch" min="0" max="50" step="0.1" value="10" oninput="sens.pitch=+this.value;document.getElementById('sv-pitch').textContent=(+this.value).toFixed(1)"></div>
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">roll</span><span id="sv-roll">10.0</span></div>
-          <input type="range" id="sl-roll" min="0" max="20" step="0.1" value="10" oninput="sens.roll=+this.value;document.getElementById('sv-roll').textContent=(+this.value).toFixed(1)"></div>
+          <input type="range" id="sl-roll" min="0" max="50" step="0.1" value="10" oninput="sens.roll=+this.value;document.getElementById('sv-roll').textContent=(+this.value).toFixed(1)"></div>
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">yaw</span><span id="sv-yaw">10.0</span></div>
-          <input type="range" id="sl-yaw" min="0" max="20" step="0.1" value="10" oninput="sens.yaw=+this.value;document.getElementById('sv-yaw').textContent=(+this.value).toFixed(1)"></div>
+          <input type="range" id="sl-yaw" min="0" max="50" step="0.1" value="10" oninput="sens.yaw=+this.value;document.getElementById('sv-yaw').textContent=(+this.value).toFixed(1)"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:8px;">
+          <div style="font-size:9px;letter-spacing:0.12em;color:var(--color-text-secondary);">EXPO</div>
+          <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">all PRY</span><span id="sv-expo">0.30</span></div>
+          <input type="range" min="0" max="2" step="0.01" value="0.3" style="accent-color:#00ff99;" oninput="setExpoAll(+this.value)"></div>
+          <div class="param"><div style="display:flex;justify-content:space-between;margin-top:6px;"><span style="color:var(--color-text-secondary);">pitch</span><span id="sv-expo-pitch">0.30</span></div>
+          <input type="range" id="sl-expo-pitch" min="0" max="2" step="0.01" value="0.3" oninput="expo.pitch=+this.value;document.getElementById('sv-expo-pitch').textContent=(+this.value).toFixed(2)"></div>
+          <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">roll</span><span id="sv-expo-roll">0.30</span></div>
+          <input type="range" id="sl-expo-roll" min="0" max="2" step="0.01" value="0.3" oninput="expo.roll=+this.value;document.getElementById('sv-expo-roll').textContent=(+this.value).toFixed(2)"></div>
+          <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">yaw</span><span id="sv-expo-yaw">0.30</span></div>
+          <input type="range" id="sl-expo-yaw" min="0" max="2" step="0.01" value="0.3" oninput="expo.yaw=+this.value;document.getElementById('sv-expo-yaw').textContent=(+this.value).toFixed(2)"></div>
         </div>
       </details>
 
@@ -276,6 +297,8 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const sens={pitch:10,roll:10,yaw:10,throttle:350};
+const expo={pitch:0.3,roll:0.3,yaw:0.3};
+const applyExpo=(x,e)=>(1-e)*x + e*x*x*x;
 const inv={pitch:-1,roll:1,yaw:1,throttle:1};
 const mapping={pitch:1,roll:0,yaw:3,throttle:2};
 const phys={gravity:100,drag:0.5,hover:0};
@@ -419,6 +442,18 @@ function setRateAll(v){
     if(lbl) lbl.textContent=txt;
   });
   document.getElementById('sv-rate').textContent=txt;
+}
+
+function setExpoAll(v){
+  expo.pitch=expo.roll=expo.yaw=v;
+  const txt=(+v).toFixed(2);
+  ['pitch','roll','yaw'].forEach(k=>{
+    const sl=document.getElementById('sl-expo-'+k);
+    if(sl) sl.value=v;
+    const lbl=document.getElementById('sv-expo-'+k);
+    if(lbl) lbl.textContent=txt;
+  });
+  document.getElementById('sv-expo').textContent=txt;
 }
 
 function setViewportScale(s){
@@ -887,6 +922,8 @@ function togglePhoneMode(on){
 function showTouchControls(on){
   document.getElementById('touch-left').style.display=on?'block':'none';
   document.getElementById('touch-right').style.display=on?'block':'none';
+  const dk=document.getElementById('desk-sticks');
+  if(dk) dk.style.display=on?'none':'flex';
 }
 
 // auto-enable phone mode on touch-capable mobile devices
@@ -1081,14 +1118,27 @@ function getAxes(){
 
 const euler=new THREE.Euler();
 const upLocal=new THREE.Vector3();
+function setDeskKnob(side,x,y){
+  const wrap=document.getElementById('desk-'+side);
+  if(!wrap||wrap.offsetParent===null) return;
+  const k=wrap.querySelector('.knob');
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  const cx=Math.max(-1,Math.min(1,x)), cy=Math.max(-1,Math.min(1,y));
+  k.style.left=(w/2 + cx*(w/2 - 5))+'px';
+  k.style.top =(h/2 + cy*(h/2 - 5))+'px';
+}
 function animate(){
   requestAnimationFrame(animate);
   const{pitch,roll,yaw,throttle}=getAxes();
+  // desktop stick GUI (mode 2): left = yaw / throttle(up=+), right = roll / pitch
+  setDeskKnob('left', yaw, 1-2*throttle);
+  setDeskKnob('right', roll, pitch);
   const dt=1/60;
   if(pitch||roll||yaw){
-    const dp=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),pitch*inv.pitch*sens.pitch*dt);
-    const dr=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-roll*inv.roll*sens.roll*dt);
-    const dy=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-yaw*inv.yaw*sens.yaw*dt);
+    const ep=applyExpo(pitch,expo.pitch), er=applyExpo(roll,expo.roll), ey=applyExpo(yaw,expo.yaw);
+    const dp=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),ep*inv.pitch*sens.pitch*dt);
+    const dr=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-er*inv.roll*sens.roll*dt);
+    const dy=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-ey*inv.yaw*sens.yaw*dt);
     droneQ.multiply(dy).multiply(dp).multiply(dr);
   }
   droneBody.quaternion.copy(droneQ);
