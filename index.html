@@ -1,3 +1,4 @@
+
 <pre style="font-family:'Space Mono',ui-monospace,'Courier New',monospace;font-size:10px;line-height:1.05;letter-spacing:0;color:#ff88cc;margin:0;overflow:hidden;white-space:pre;text-shadow:0 0 8px #ff66bb55;">
     .-''-.   ________  ________         .-------. .-./`) .-./`)         ,---.  ,---.   .-''-.      .-''-.   
   .'_ _   \ |        ||        |        \  _(`)_ \\ .-.')\ .-.')        |   /  |   | .'_ _   \   .'_ _   \  
@@ -55,15 +56,13 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   <button onclick="resetOrientation()" style="position:absolute;top:12px;right:12px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">reset</button>
   <button onclick="toggleFullscreen()" style="position:absolute;top:12px;right:64px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">⛶</button>
 
-  <div id="touch-left" style="display:none;position:absolute;bottom:20px;left:20px;width:180px;height:180px;border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;">
-    <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:#ff66bbaa;"></div>
-    <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#ff66bbaa;"></div>
-    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;transform:translate(-50%,-50%);pointer-events:none;will-change:left,top;"></div>
+  <div id="touch-left" style="display:none;position:absolute;bottom:20px;left:20px;width:var(--stickSize,324px);height:var(--stickSize,324px);border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;box-sizing:border-box;isolation:isolate;">
+    <svg width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
+    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;margin-left:-8px;margin-top:-8px;pointer-events:none;"></div>
   </div>
-  <div id="touch-right" style="display:none;position:absolute;bottom:20px;right:20px;width:180px;height:180px;border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;">
-    <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:#ff66bbaa;"></div>
-    <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#ff66bbaa;"></div>
-    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;transform:translate(-50%,-50%);pointer-events:none;will-change:left,top;"></div>
+  <div id="touch-right" style="display:none;position:absolute;bottom:20px;right:20px;width:var(--stickSize,324px);height:var(--stickSize,324px);border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;box-sizing:border-box;isolation:isolate;">
+    <svg width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
+    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;margin-left:-8px;margin-top:-8px;pointer-events:none;"></div>
   </div>
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:transparent;padding:4px 10px;border:0.5px solid #00ff9944;border-radius:6px;">
     <span style="color:#00ff99cc;font-size:10px;font-family:'Space Mono',monospace;">scale</span>
@@ -76,7 +75,12 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
 
 <div style="width:190px;display:flex;flex-direction:column;gap:8px;">
 
-  <label class="panel" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 12px;"><span class="sec-title">📱 Phone Mode</span><input type="checkbox" id="phone-mode" onchange="togglePhoneMode(this.checked)"></label>
+  <div class="panel" style="padding:10px 12px;">
+    <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span class="sec-title">📱 Phone Mode</span><input type="checkbox" id="phone-mode" onchange="togglePhoneMode(this.checked)"></label>
+    <div class="param" style="margin-top:8px;"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">stick area size</span><span id="sv-sticksz">324</span></div>
+      <input type="range" min="120" max="500" step="2" value="324" oninput="setStickSize(+this.value)">
+    </div>
+  </div>
 
   <details class="panel">
     <summary><span class="sec-title">Axis Mapping</span></summary>
@@ -750,17 +754,31 @@ document.addEventListener('keydown',e=>keys[e.code]=true);
 document.addEventListener('keyup',e=>keys[e.code]=false);
 document.addEventListener('keydown',e=>{if(e.code==='KeyR') resetOrientation();});
 
-// fullscreen
+// fullscreen — fall back to documentElement on iOS Safari (where vp-container fullscreen is blocked)
 function toggleFullscreen(){
   const el=document.getElementById('vp-container');
-  if(!document.fullscreenElement){
-    if(el.requestFullscreen) el.requestFullscreen();
-    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  const root=document.documentElement;
+  const inFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if(!inFs){
+    const target = el.requestFullscreen ? el : root;
+    if(target.requestFullscreen) target.requestFullscreen().catch(()=>{
+      if(root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    });
+    else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+    else if(root.webkitRequestFullscreen) root.webkitRequestFullscreen();
   }else{
     if(document.exitFullscreen) document.exitFullscreen();
     else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
   }
 }
+
+function setStickSize(px){
+  document.getElementById('sv-sticksz').textContent=px;
+  document.documentElement.style.setProperty('--stickSize',px+'px');
+  updateKnob('left');updateKnob('right');
+}
+// initialize CSS var on first run
+setStickSize(324);
 
 const touch={
   left:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:false},
@@ -795,9 +813,8 @@ function updateKnob(side){
   const knob=wrap.querySelector('.knob');
   const w=wrap.clientWidth, h=wrap.clientHeight;
   const s=touch[side];
-  knob.style.left=(w/2 + s.x*(w/2))+'px';
-  knob.style.top =(h/2 + s.y*(h/2))+'px';
-  knob.style.transform='translate(-50%,-50%)';
+  knob.style.left=(w/2 + s.x*(w/2 - 8))+'px';
+  knob.style.top =(h/2 + s.y*(h/2 - 8))+'px';
 }
 
 function setStickFromPoint(side,clientX,clientY){
