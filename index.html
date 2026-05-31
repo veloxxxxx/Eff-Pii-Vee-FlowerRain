@@ -12,6 +12,11 @@
 </pre>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+body.fake-fs{margin:0!important;padding:0!important;overflow:hidden!important;background:#0a0a0f;}
+body.fake-fs > *:not(#fake-fs-host){display:none!important;}
+#fake-fs-host{position:fixed;inset:0;background:#0a0a0f;z-index:9999;display:flex;align-items:center;justify-content:center;}
+#fake-fs-host #vp-container{max-width:none!important;max-height:100vh!important;width:auto!important;height:100vh!important;aspect-ratio:unset!important;}
+#fake-fs-host.dynamic-aspect #vp-container{height:100vh!important;width:100vw!important;}
 .sec-title{font-size:9px;letter-spacing:0.12em;font-weight:500;color:var(--color-text-secondary);margin-bottom:0;font-family:'Space Mono',ui-monospace,monospace;}
 .panel{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);font-size:11px;font-family:'Space Mono',ui-monospace,monospace;}
 .panel input[type=range]{accent-color:#ff66bb;width:100%;}
@@ -54,7 +59,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   </div>
   <div style="position:absolute;bottom:10px;left:12px;color:#ffffff33;font-size:10px;pointer-events:none;"></div>
   <button onclick="resetOrientation()" style="position:absolute;top:12px;right:12px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">reset</button>
-  <button onclick="toggleFullscreen()" style="position:absolute;top:12px;right:64px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">⛶</button>
+  <button onclick="toggleFakeFullscreen()" id="fs-btn" style="position:absolute;top:12px;right:64px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">⛶</button>
 
   <div id="touch-left" style="display:none;position:absolute;bottom:20px;left:20px;width:var(--stickSize,324px);height:var(--stickSize,324px);border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;box-sizing:border-box;isolation:isolate;">
     <svg width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
@@ -71,7 +76,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   </div>
 </div>
 
-<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.4</div>
+<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.5</div>
 
 </div>
 
@@ -758,22 +763,93 @@ document.addEventListener('keydown',e=>keys[e.code]=true);
 document.addEventListener('keyup',e=>keys[e.code]=false);
 document.addEventListener('keydown',e=>{if(e.code==='KeyR') resetOrientation();});
 
-// fullscreen — fall back to documentElement on iOS Safari (where vp-container fullscreen is blocked)
-function toggleFullscreen(){
-  const el=document.getElementById('vp-container');
-  const root=document.documentElement;
-  const inFs = document.fullscreenElement || document.webkitFullscreenElement;
-  if(!inFs){
-    const target = el.requestFullscreen ? el : root;
-    if(target.requestFullscreen) target.requestFullscreen().catch(()=>{
-      if(root.webkitRequestFullscreen) root.webkitRequestFullscreen();
-    });
-    else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
-    else if(root.webkitRequestFullscreen) root.webkitRequestFullscreen();
-  }else{
-    if(document.exitFullscreen) document.exitFullscreen();
-    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+// fake fullscreen — works on iOS Safari where native Fullscreen API is unsupported.
+// Strategy: move viewport into a top-level fixed container, hide everything else,
+// hide address bar via scroll trick, lock body scroll, restore on exit.
+let fakeFsActive=false;
+let fakeFsOrigParent=null;
+let fakeFsOrigNextSibling=null;
+let viewportMetaOrig=null;
+let exitBtn=null;
+
+function ensureViewportMeta(){
+  let m=document.querySelector('meta[name="viewport"]');
+  if(!m){m=document.createElement('meta');m.name='viewport';document.head&&document.head.appendChild(m);}
+  return m;
+}
+
+function toggleFakeFullscreen(){
+  if(fakeFsActive) exitFakeFullscreen();
+  else enterFakeFullscreen();
+}
+
+function enterFakeFullscreen(){
+  const vp=document.getElementById('vp-container');
+  if(!vp) return;
+  fakeFsOrigParent=vp.parentNode;
+  fakeFsOrigNextSibling=vp.nextSibling;
+
+  // viewport meta: enable safe-area and prevent scaling that would let the chrome stay
+  const m=ensureViewportMeta();
+  if(m){
+    viewportMetaOrig=m.getAttribute('content');
+    m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
   }
+
+  // host overlay
+  const host=document.createElement('div');
+  host.id='fake-fs-host';
+  host.className='dynamic-aspect';
+  document.body.appendChild(host);
+  host.appendChild(vp);
+
+  document.body.classList.add('fake-fs');
+
+  // exit button
+  exitBtn=document.createElement('button');
+  exitBtn.textContent='✕ exit';
+  Object.assign(exitBtn.style,{
+    position:'fixed',top:'calc(env(safe-area-inset-top, 0px) + 8px)',right:'calc(env(safe-area-inset-right, 0px) + 8px)',
+    background:'#ff66bb22',border:'1px solid #ff66bb',color:'#ff88cc',
+    padding:'8px 14px',borderRadius:'6px',fontSize:'12px',fontFamily:"'Space Mono',monospace",
+    cursor:'pointer',zIndex:'10000',touchAction:'manipulation'
+  });
+  exitBtn.onclick=exitFakeFullscreen;
+  document.body.appendChild(exitBtn);
+
+  // hide-address-bar trick (iOS legacy, still helps before iOS 17ish)
+  setTimeout(()=>{window.scrollTo(0,1);},50);
+  setTimeout(()=>{window.scrollTo(0,0);},300);
+
+  // lock body scroll
+  document.body.style.position='fixed';
+  document.body.style.width='100%';
+  document.body.style.height='100%';
+
+  fakeFsActive=true;
+  // resize the canvas after layout changes
+  setTimeout(()=>window.dispatchEvent(new Event('resize')),100);
+}
+
+function exitFakeFullscreen(){
+  if(!fakeFsActive) return;
+  const host=document.getElementById('fake-fs-host');
+  const vp=document.getElementById('vp-container');
+  if(host && vp && fakeFsOrigParent){
+    fakeFsOrigParent.insertBefore(vp,fakeFsOrigNextSibling);
+    host.remove();
+  }
+  if(exitBtn){exitBtn.remove();exitBtn=null;}
+  document.body.classList.remove('fake-fs');
+  document.body.style.position='';
+  document.body.style.width='';
+  document.body.style.height='';
+
+  const m=document.querySelector('meta[name="viewport"]');
+  if(m && viewportMetaOrig!==null){m.setAttribute('content',viewportMetaOrig);}
+
+  fakeFsActive=false;
+  setTimeout(()=>window.dispatchEvent(new Event('resize')),100);
 }
 
 function setStickSize(px){
