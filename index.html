@@ -52,8 +52,20 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
     <div id="pad-status">connect controller</div>
     <div id="att"></div>
   </div>
-  <div style="position:absolute;bottom:10px;left:12px;color:#ffffff33;font-size:10px;pointer-events:none;">WASD pitch/roll &nbsp; QE yaw &nbsp; Shift/Space throttle &nbsp; R reset</div>
+  <div style="position:absolute;bottom:10px;left:12px;color:#ffffff33;font-size:10px;pointer-events:none;"></div>
   <button onclick="resetOrientation()" style="position:absolute;top:12px;right:12px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">reset</button>
+  <button onclick="toggleFullscreen()" style="position:absolute;top:12px;right:64px;background:#ffffff11;border:0.5px solid #ffffff33;color:#ffffffcc;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">⛶</button>
+
+  <div id="touch-left" style="display:none;position:absolute;bottom:20px;left:20px;width:180px;height:180px;border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;">
+    <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:#ff66bbaa;"></div>
+    <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#ff66bbaa;"></div>
+    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;transform:translate(-50%,-50%);pointer-events:none;will-change:left,top;"></div>
+  </div>
+  <div id="touch-right" style="display:none;position:absolute;bottom:20px;right:20px;width:180px;height:180px;border:1px solid #ff66bb;background:#00000044;touch-action:none;user-select:none;z-index:5;overflow:hidden;">
+    <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:#ff66bbaa;"></div>
+    <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#ff66bbaa;"></div>
+    <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;transform:translate(-50%,-50%);pointer-events:none;will-change:left,top;"></div>
+  </div>
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:transparent;padding:4px 10px;border:0.5px solid #00ff9944;border-radius:6px;">
     <span style="color:#00ff99cc;font-size:10px;font-family:'Space Mono',monospace;">scale</span>
     <input type="range" min="0.3" max="1.6" step="0.001" value="1" style="width:120px;accent-color:#00ff99;background:transparent;" oninput="setViewportScale(+this.value)">
@@ -64,6 +76,8 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
 </div>
 
 <div style="width:190px;display:flex;flex-direction:column;gap:8px;">
+
+  <label class="panel" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 12px;"><span class="sec-title">📱 Phone Mode</span><input type="checkbox" id="phone-mode" onchange="togglePhoneMode(this.checked)"></label>
 
   <details class="panel">
     <summary><span class="sec-title">Axis Mapping</span></summary>
@@ -737,6 +751,85 @@ document.addEventListener('keydown',e=>keys[e.code]=true);
 document.addEventListener('keyup',e=>keys[e.code]=false);
 document.addEventListener('keydown',e=>{if(e.code==='KeyR') resetOrientation();});
 
+// fullscreen
+function toggleFullscreen(){
+  const el=document.getElementById('vp-container');
+  if(!document.fullscreenElement){
+    if(el.requestFullscreen) el.requestFullscreen();
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }else{
+    if(document.exitFullscreen) document.exitFullscreen();
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+}
+
+// state.x and state.y in [-1, 1]; selfCenterY=false means Y persists on release
+const touch={
+  left:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:false},
+  right:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:true}
+};
+function togglePhoneMode(on){
+  const vp=document.getElementById('vp-container');
+  if(on){
+    vp.style.aspectRatio='auto';
+    vp.style.height='80vh';
+    showTouchControls(true);
+  }else{
+    vp.style.aspectRatio=document.getElementById('aspect-select').value.replace(':','/');
+    vp.style.height='';
+    showTouchControls(false);
+  }
+}
+function showTouchControls(on){
+  document.getElementById('touch-left').style.display=on?'block':'none';
+  document.getElementById('touch-right').style.display=on?'block':'none';
+}
+
+function updateKnob(side){
+  const knob=document.getElementById('touch-'+side).querySelector('.knob');
+  const wrap=document.getElementById('touch-'+side);
+  const w=wrap.clientWidth, h=wrap.clientHeight;
+  const s=touch[side];
+  const px=w/2 + s.x*(w/2 - 12);
+  const py=h/2 + s.y*(h/2 - 12);
+  knob.style.transform=`translate(${px - w/2}px, ${py - h/2}px) translate(-50%, -50%) translate(${w/2}px, ${h/2}px)`;
+  // simpler: position absolutely
+  knob.style.left=px+'px';
+  knob.style.top=py+'px';
+  knob.style.transform='translate(-50%, -50%)';
+}
+
+function bindStick(side){
+  const wrap=document.getElementById('touch-'+side);
+  const state=touch[side];
+  function setFromEvent(e){
+    const t=e.touches?e.touches[0]:e;
+    const rect=wrap.getBoundingClientRect();
+    const nx=((t.clientX-rect.left)/rect.width)*2-1;
+    const ny=((t.clientY-rect.top)/rect.height)*2-1;
+    state.x=Math.max(-1,Math.min(1,nx));
+    state.y=Math.max(-1,Math.min(1,ny));
+    updateKnob(side);
+  }
+  function start(e){e.preventDefault();state.active=true;setFromEvent(e);}
+  function move(e){if(state.active){e.preventDefault();setFromEvent(e);}}
+  function end(){
+    state.active=false;
+    if(state.selfCenterX) state.x=0;
+    if(state.selfCenterY) state.y=0;
+    updateKnob(side);
+  }
+  wrap.addEventListener('touchstart',start,{passive:false});
+  wrap.addEventListener('touchmove',move,{passive:false});
+  wrap.addEventListener('touchend',end);
+  wrap.addEventListener('touchcancel',end);
+  wrap.addEventListener('mousedown',start);
+  window.addEventListener('mousemove',e=>{if(state.active) move(e);});
+  window.addEventListener('mouseup',end);
+}
+bindStick('left');
+bindStick('right');
+
 window.addEventListener('gamepadconnected',e=>{
   padIndex=e.gamepad.index;
   document.getElementById('pad-status').textContent='🎮 '+e.gamepad.id.slice(0,26);
@@ -804,6 +897,17 @@ function getAxes(){
   if(keys['KeyQ'])yaw=-1;  if(keys['KeyE'])yaw=1;
   if(keys['ShiftLeft']||keys['ShiftRight']){throttleRaw=-1;throttleHasInput=true;}
   if(keys['Space']){throttleRaw=1;throttleHasInput=true;}
+  // touch joysticks (mode 2: left=throttle/yaw, right=pitch/roll)
+  if(touch.left.active||touch.right.active||touch.left.y!==0){
+    // throttle persists even when stick released
+    throttleRaw=-touch.left.y; // up = positive throttle
+    throttleHasInput=true;
+    if(touch.left.active) yaw=touch.left.x;
+    if(touch.right.active){
+      roll=touch.right.x;
+      pitch=-touch.right.y;
+    }
+  }
   // normalize raw -> [0,1] using observed range; fall back to bipolar [-1..+1]
   let t01;
   const range=thrCal.max-thrCal.min;
