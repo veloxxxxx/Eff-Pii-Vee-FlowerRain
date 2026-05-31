@@ -1,4 +1,3 @@
-
 <pre style="font-family:'Space Mono',ui-monospace,'Courier New',monospace;font-size:10px;line-height:1.05;letter-spacing:0;color:#ff88cc;margin:0;overflow:hidden;white-space:pre;text-shadow:0 0 8px #ff66bb55;">
     .-''-.   ________  ________         .-------. .-./`) .-./`)         ,---.  ,---.   .-''-.      .-''-.   
   .'_ _   \ |        ||        |        \  _(`)_ \\ .-.')\ .-.')        |   /  |   | .'_ _   \   .'_ _   \  
@@ -763,19 +762,25 @@ function toggleFullscreen(){
   }
 }
 
-// state.x and state.y in [-1, 1]; selfCenterY=false means Y persists on release
 const touch={
   left:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:false},
   right:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:true}
 };
+const touchAssign={}; // touch.identifier -> 'left' | 'right'
+
 function togglePhoneMode(on){
   const vp=document.getElementById('vp-container');
   if(on){
-    vp.style.aspectRatio='auto';
+    vp.style.aspectRatio='unset';
+    vp.style.maxWidth='unset';
+    vp.style.width='100%';
     vp.style.height='80vh';
     showTouchControls(true);
   }else{
-    vp.style.aspectRatio=document.getElementById('aspect-select').value.replace(':','/');
+    const aspect=document.getElementById('aspect-select').value;
+    vp.style.aspectRatio=aspect.replace(':','/');
+    vp.style.maxWidth='';
+    vp.style.width='';
     vp.style.height='';
     showTouchControls(false);
   }
@@ -786,49 +791,98 @@ function showTouchControls(on){
 }
 
 function updateKnob(side){
-  const knob=document.getElementById('touch-'+side).querySelector('.knob');
   const wrap=document.getElementById('touch-'+side);
+  const knob=wrap.querySelector('.knob');
   const w=wrap.clientWidth, h=wrap.clientHeight;
   const s=touch[side];
-  const px=w/2 + s.x*(w/2 - 12);
-  const py=h/2 + s.y*(h/2 - 12);
-  knob.style.transform=`translate(${px - w/2}px, ${py - h/2}px) translate(-50%, -50%) translate(${w/2}px, ${h/2}px)`;
-  // simpler: position absolutely
-  knob.style.left=px+'px';
-  knob.style.top=py+'px';
-  knob.style.transform='translate(-50%, -50%)';
+  knob.style.left=(w/2 + s.x*(w/2))+'px';
+  knob.style.top =(h/2 + s.y*(h/2))+'px';
+  knob.style.transform='translate(-50%,-50%)';
 }
 
-function bindStick(side){
-  const wrap=document.getElementById('touch-'+side);
-  const state=touch[side];
-  function setFromEvent(e){
-    const t=e.touches?e.touches[0]:e;
-    const rect=wrap.getBoundingClientRect();
-    const nx=((t.clientX-rect.left)/rect.width)*2-1;
-    const ny=((t.clientY-rect.top)/rect.height)*2-1;
-    state.x=Math.max(-1,Math.min(1,nx));
-    state.y=Math.max(-1,Math.min(1,ny));
-    updateKnob(side);
-  }
-  function start(e){e.preventDefault();state.active=true;setFromEvent(e);}
-  function move(e){if(state.active){e.preventDefault();setFromEvent(e);}}
-  function end(){
-    state.active=false;
-    if(state.selfCenterX) state.x=0;
-    if(state.selfCenterY) state.y=0;
-    updateKnob(side);
-  }
-  wrap.addEventListener('touchstart',start,{passive:false});
-  wrap.addEventListener('touchmove',move,{passive:false});
-  wrap.addEventListener('touchend',end);
-  wrap.addEventListener('touchcancel',end);
-  wrap.addEventListener('mousedown',start);
-  window.addEventListener('mousemove',e=>{if(state.active) move(e);});
-  window.addEventListener('mouseup',end);
+function setStickFromPoint(side,clientX,clientY){
+  const rect=document.getElementById('touch-'+side).getBoundingClientRect();
+  const nx=((clientX-rect.left)/rect.width)*2-1;
+  const ny=((clientY-rect.top)/rect.height)*2-1;
+  touch[side].x=Math.max(-1,Math.min(1,nx));
+  touch[side].y=Math.max(-1,Math.min(1,ny));
+  updateKnob(side);
 }
-bindStick('left');
-bindStick('right');
+
+function findStickFor(x,y){
+  const L=document.getElementById('touch-left'), R=document.getElementById('touch-right');
+  if(L.style.display==='none') return null;
+  const lr=L.getBoundingClientRect(), rr=R.getBoundingClientRect();
+  if(x>=lr.left&&x<=lr.right&&y>=lr.top&&y<=lr.bottom) return 'left';
+  if(x>=rr.left&&x<=rr.right&&y>=rr.top&&y<=rr.bottom) return 'right';
+  return null;
+}
+
+// document-level multi-touch — each finger tracked independently by identifier
+document.addEventListener('touchstart',e=>{
+  let handled=false;
+  for(const t of e.changedTouches){
+    const side=findStickFor(t.clientX,t.clientY);
+    if(side){
+      touchAssign[t.identifier]=side;
+      touch[side].active=true;
+      setStickFromPoint(side,t.clientX,t.clientY);
+      handled=true;
+    }
+  }
+  if(handled) e.preventDefault();
+},{passive:false});
+
+document.addEventListener('touchmove',e=>{
+  let handled=false;
+  for(const t of e.changedTouches){
+    const side=touchAssign[t.identifier];
+    if(side){
+      setStickFromPoint(side,t.clientX,t.clientY);
+      handled=true;
+    }
+  }
+  if(handled) e.preventDefault();
+},{passive:false});
+
+function endTouchHandler(e){
+  for(const t of e.changedTouches){
+    const side=touchAssign[t.identifier];
+    if(side){
+      const s=touch[side];
+      s.active=false;
+      if(s.selfCenterX) s.x=0;
+      if(s.selfCenterY) s.y=0;
+      updateKnob(side);
+      delete touchAssign[t.identifier];
+    }
+  }
+}
+document.addEventListener('touchend',endTouchHandler);
+document.addEventListener('touchcancel',endTouchHandler);
+
+// mouse fallback (single pointer)
+['left','right'].forEach(side=>{
+  document.getElementById('touch-'+side).addEventListener('mousedown',e=>{
+    e.preventDefault();
+    touch[side].active=true;
+    setStickFromPoint(side,e.clientX,e.clientY);
+  });
+});
+window.addEventListener('mousemove',e=>{
+  for(const side of ['left','right']) if(touch[side].active) setStickFromPoint(side,e.clientX,e.clientY);
+});
+window.addEventListener('mouseup',()=>{
+  for(const side of ['left','right']){
+    const s=touch[side];
+    if(s.active){
+      s.active=false;
+      if(s.selfCenterX) s.x=0;
+      if(s.selfCenterY) s.y=0;
+      updateKnob(side);
+    }
+  }
+});
 
 window.addEventListener('gamepadconnected',e=>{
   padIndex=e.gamepad.index;
