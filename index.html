@@ -1,9 +1,8 @@
-
 <pre style="font-family:'Space Mono',ui-monospace,'Courier New',monospace;font-size:10px;line-height:1.05;letter-spacing:0;color:#ff88cc;margin:0;overflow:hidden;white-space:pre;text-shadow:0 0 8px #ff66bb55;">
     .-''-.   ________  ________         .-------. .-./`) .-./`)         ,---.  ,---.   .-''-.      .-''-.   
   .'_ _   \ |        ||        |        \  _(`)_ \\ .-.')\ .-.')        |   /  |   | .'_ _   \   .'_ _   \  
  / ( ` )   '|   .----'|   .----'        | (_ o._)|/ `-' \/ `-' \        |  |   |  .'/ ( ` )   ' / ( ` )   ' 
-. (_ o _)  ||  _|____ |  _|____         |  (_,_) / `-'`"` `-'`"`        |  | _ |  |. (_ o _)  |. (_ o _)  ddd 
+. (_ o _)  ||  _|____ |  _|____         |  (_,_) / `-'`"` `-'`"`        |  | _ |  |. (_ o _)  |. (_ o _)  | 
 |  (_,_)___||_( )_   ||_( )_   |        |   '-.-'  .---.  .---.         |  _( )_  ||  (_,_)___||  (_,_)___| 
 '  \   .---.(_ o._)__|(_ o._)__|        |   |      |   |  |   |         \ (_ o._) /'  \   .---.'  \   .---. 
  \  `-'    /|(_,_)    |(_,_)            |   |      |   |  |   |          \ (_,_) /  \  `-'    / \  `-'    / 
@@ -71,16 +70,20 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   </div>
 </div>
 
+<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.3</div>
+
 </div>
 
 <div style="width:190px;display:flex;flex-direction:column;gap:8px;">
 
-  <div class="panel" style="padding:10px 12px;">
-    <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span class="sec-title">📱 Phone Mode</span><input type="checkbox" id="phone-mode" onchange="togglePhoneMode(this.checked)"></label>
-    <div class="param" style="margin-top:8px;"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">stick area size</span><span id="sv-sticksz">324</span></div>
-      <input type="range" min="120" max="500" step="2" value="324" oninput="setStickSize(+this.value)">
+  <details class="panel">
+    <summary><span class="sec-title">Phone Mode</span><label style="margin-left:auto;display:flex;align-items:center;cursor:pointer;" onclick="event.stopPropagation()"><input type="checkbox" id="phone-mode" onchange="togglePhoneMode(this.checked)"></label></summary>
+    <div class="panel-body">
+      <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">stick area size</span><span id="sv-sticksz">324</span></div>
+        <input type="range" min="120" max="500" step="2" value="324" oninput="setStickSize(+this.value)">
+      </div>
     </div>
-  </div>
+  </details>
 
   <details class="panel">
     <summary><span class="sec-title">Axis Mapping</span></summary>
@@ -775,10 +778,8 @@ function toggleFullscreen(){
 function setStickSize(px){
   document.getElementById('sv-sticksz').textContent=px;
   document.documentElement.style.setProperty('--stickSize',px+'px');
-  updateKnob('left');updateKnob('right');
+  if(typeof touch!=='undefined'){updateKnob('left');updateKnob('right');}
 }
-// initialize CSS var on first run
-setStickSize(324);
 
 const touch={
   left:{active:false,x:0,y:0,selfCenterX:true,selfCenterY:false},
@@ -788,12 +789,14 @@ const touchAssign={}; // touch.identifier -> 'left' | 'right'
 
 function togglePhoneMode(on){
   const vp=document.getElementById('vp-container');
+  const padStatus=document.getElementById('pad-status');
   if(on){
     vp.style.aspectRatio='unset';
     vp.style.maxWidth='unset';
     vp.style.width='100%';
     vp.style.height='80vh';
     showTouchControls(true);
+    padStatus.style.display='none';
   }else{
     const aspect=document.getElementById('aspect-select').value;
     vp.style.aspectRatio=aspect.replace(':','/');
@@ -801,11 +804,18 @@ function togglePhoneMode(on){
     vp.style.width='';
     vp.style.height='';
     showTouchControls(false);
+    padStatus.style.display='';
   }
 }
 function showTouchControls(on){
   document.getElementById('touch-left').style.display=on?'block':'none';
   document.getElementById('touch-right').style.display=on?'block':'none';
+}
+
+// auto-enable phone mode on touch-capable mobile devices
+if(('ontouchstart' in window) && Math.min(window.innerWidth,window.innerHeight)<900){
+  const cb=document.getElementById('phone-mode');
+  if(cb){cb.checked=true;togglePhoneMode(true);}
 }
 
 function updateKnob(side){
