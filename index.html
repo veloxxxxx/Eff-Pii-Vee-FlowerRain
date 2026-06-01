@@ -1,5 +1,5 @@
-
-<pre style="font-family:'Space Mono',ui-monospace,'Courier New',monospace;font-size:10px;line-height:1.05;letter-spacing:0;color:#ff88cc;margin:0;overflow:hidden;white-space:pre;text-shadow:0 0 8px #ff66bb55;">
+<div style="text-align:center;width:100%;overflow:hidden;">
+<pre style="display:inline-block;text-align:left;font-family:'Space Mono',ui-monospace,'Courier New',monospace;font-size:10px;line-height:1.05;letter-spacing:0;color:#ff88cc;margin:0;overflow:hidden;white-space:pre;text-shadow:0 0 8px #ff66bb55;">
     .-''-.   ________  ________         .-------. .-./`) .-./`)         ,---.  ,---.   .-''-.      .-''-.   
   .'_ _   \ |        ||        |        \  _(`)_ \\ .-.')\ .-.')        |   /  |   | .'_ _   \   .'_ _   \  
  / ( ` )   '|   .----'|   .----'        | (_ o._)|/ `-' \/ `-' \        |  |   |  .'/ ( ` )   ' / ( ` )   ' 
@@ -10,6 +10,7 @@
   \       / |   |     |   |             /   )      |   |  |   |           \     /    \       /   \       /  
    `'-..-'  '---'     '---'             `---'      '---'  '---'            `---`      `'-..-'     `'-..-'   
 </pre>
+</div>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 body.fake-fs{margin:0!important;padding:0!important;overflow:hidden!important;background:#0a0a0f;}
@@ -20,6 +21,18 @@ body.fake-fs > *:not(#fake-fs-host){display:none!important;}
 .sec-title{font-size:9px;letter-spacing:0.12em;font-weight:500;color:var(--color-text-secondary);margin-bottom:0;font-family:'Space Mono',ui-monospace,monospace;}
 .panel{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);font-size:11px;font-family:'Space Mono',ui-monospace,monospace;}
 .panel input[type=range]{accent-color:#ff66bb;width:100%;}
+
+/* --- square slider-bar style: text sits inside the bar, click anywhere to set --- */
+.param{position:relative;height:30px;border:1.5px solid #ff66bb;border-radius:0;background:#00000033;overflow:hidden;}
+.param > div:first-child{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 8px;pointer-events:none;z-index:2;font-size:11px;line-height:1;}
+.param > div:first-child > span:first-child{color:#fff;}
+.param > div:first-child > span:last-child{color:#ff9bd2;}
+.param > input[type=range]{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;z-index:1;}
+.param > input[type=range]::-webkit-slider-runnable-track{height:100%;background:transparent;}
+.param > input[type=range]::-moz-range-track{height:100%;background:transparent;}
+.param > input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:3px;height:30px;background:#ff66bb;border:none;border-radius:0;}
+.param > input[type=range]::-moz-range-thumb{width:3px;height:30px;background:#ff66bb;border:none;border-radius:0;}
+.param > input[type=range]::-moz-range-progress{background:rgba(255,102,187,0.22);height:100%;}
 details.panel{padding:0;}
 details.panel > summary{padding:10px 12px;cursor:pointer;list-style:none;display:flex;align-items:center;user-select:none;gap:8px;}
 details.panel > summary::-webkit-details-marker{display:none;}
@@ -36,10 +49,6 @@ details.nested > summary::-webkit-details-marker{display:none;}
 details.nested > summary::before{content:'▶';color:#ff66bb;font-size:9px;display:inline-block;transition:transform .15s ease;}
 details.nested > summary > .sec-title{flex:1;}
 details.nested[open] > summary::before{transform:rotate(90deg);}
-
-.param{background:rgba(255,102,187,0.07);border:0.5px solid rgba(255,102,187,0.15);border-radius:5px;padding:5px 7px;display:flex;flex-direction:column;gap:3px;}
-.param > div:first-child{display:flex;justify-content:space-between;align-items:center;}
-.param > input[type=range]{margin:0;}
 </style>
 
 <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
@@ -69,15 +78,18 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
     <svg width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
     <div class="knob" style="position:absolute;left:50%;top:50%;width:16px;height:16px;background:#ff66bb;margin-left:-8px;margin-top:-8px;pointer-events:none;"></div>
   </div>
-  <div id="desk-sticks" style="display:flex;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);gap:10px;pointer-events:none;z-index:5;">
-    <div id="desk-left" style="position:relative;width:90px;height:90px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
+  <div id="desk-sticks" style="display:flex;flex-direction:column;align-items:center;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);gap:4px;pointer-events:none;z-index:5;">
+   <div style="display:flex;gap:10px;">
+    <div id="desk-left" style="position:relative;width:63px;height:63px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
       <svg width="100%" height="100%" style="position:absolute;top:0;left:0;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
       <div class="knob" style="position:absolute;left:50%;top:50%;width:10px;height:10px;background:#ff66bb;margin-left:-5px;margin-top:-5px;"></div>
     </div>
-    <div id="desk-right" style="position:relative;width:90px;height:90px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
+    <div id="desk-right" style="position:relative;width:63px;height:63px;border:1px solid #ff66bb;background:#00000044;box-sizing:border-box;overflow:hidden;">
       <svg width="100%" height="100%" style="position:absolute;top:0;left:0;" preserveAspectRatio="none" viewBox="0 0 100 100"><line x1="50" y1="0" x2="50" y2="100" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="50" x2="100" y2="50" stroke="#ff66bb" stroke-opacity="0.6" stroke-width="0.4" vector-effect="non-scaling-stroke"/></svg>
       <div class="knob" style="position:absolute;left:50%;top:50%;width:10px;height:10px;background:#ff66bb;margin-left:-5px;margin-top:-5px;"></div>
     </div>
+   </div>
+   <div id="desk-dbg" style="font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb99;"></div>
   </div>
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:transparent;padding:4px 10px;border:0.5px solid #00ff9944;border-radius:6px;">
     <span style="color:#00ff99cc;font-size:10px;font-family:'Space Mono',monospace;">scale</span>
@@ -86,7 +98,10 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
   </div>
 </div>
 
-<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;margin-top:6px;">v 1.2.7</div>
+<div style="display:flex;align-items:center;justify-content:center;position:relative;margin-top:6px;width:100%;">
+  <button onclick="applyPreset({sens:25.0,throttle:450,expo:0.60,cam:35,dead:0.002})" style="position:absolute;left:0;font-family:'Space Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:#ff66bb22;border:0.5px solid #ff66bb55;color:#ff88cc;cursor:pointer;">うちは好き</button>
+  <div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:#ff66bb88;letter-spacing:0.18em;">v 1.3.6</div>
+</div>
 
 </div>
 
@@ -129,7 +144,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
       <button onclick="resetThrottleCal()" style="font-size:10px;padding:3px 6px;border-radius:4px;background:#ff66bb22;border:0.5px solid #ff66bb55;color:#ff88cc;cursor:pointer;margin-top:2px;">recalibrate throttle range</button>
 
       <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">deadzone</span><span id="sv-dead">0.012</span></div>
-        <input type="range" min="0" max="0.2" step="0.001" value="0.012" oninput="ctrl.deadzone=+this.value;document.getElementById('sv-dead').textContent=(+this.value).toFixed(3)">
+        <input type="range" id="sl-dead" min="0" max="0.2" step="0.001" value="0.012" oninput="ctrl.deadzone=+this.value;document.getElementById('sv-dead').textContent=(+this.value).toFixed(3)">
       </div>
 
       <details class="nested">
@@ -150,7 +165,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
     <div class="panel-body">
     <div style="display:flex;flex-direction:column;gap:5px;">
       <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Motor Strength</span><span id="sv-throttle">350</span></div>
-      <input type="range" min="0" max="1000" step="1" value="350" oninput="sens.throttle=+this.value;document.getElementById('sv-throttle').textContent=(+this.value).toFixed(0)"></div>
+      <input type="range" id="sl-throttle" min="0" max="1000" step="1" value="350" oninput="sens.throttle=+this.value;document.getElementById('sv-throttle').textContent=(+this.value).toFixed(0)"></div>
 
       <details class="nested">
         <summary><span class="sec-title">Sensitivity</span></summary>
@@ -181,7 +196,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
         <summary><span class="sec-title">Cam</span></summary>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">cam angle</span><span id="sv-camangle">15°</span></div>
-          <input type="range" min="0" max="60" step="1" value="15" oninput="setCamAngle(+this.value)"></div>
+          <input type="range" id="sl-camangle" min="0" max="60" step="1" value="15" oninput="setCamAngle(+this.value)"></div>
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:var(--color-text-secondary);">FOV</span><span id="sv-fov">110°</span></div>
           <input type="range" min="60" max="150" step="1" value="110" oninput="setFOV(+this.value)"></div>
           <div class="param"><div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:var(--color-text-secondary);">crosshair size</span><span id="sv-cross">1.5</span></div>
@@ -224,6 +239,7 @@ details.nested[open] > summary::before{transform:rotate(90deg);}
     <div class="panel-body">
     <div style="display:flex;flex-direction:column;gap:5px;">
       <button onclick="regenerateEnvironment()" style="font-size:10px;padding:4px 6px;border-radius:4px;background:#ff66bb22;border:0.5px solid #ff66bb55;color:#ff88cc;cursor:pointer;margin-bottom:4px;">regenerate (re-roll)</button>
+      <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:rgba(255,102,187,0.07);border:0.5px solid rgba(255,102,187,0.15);border-radius:5px;padding:5px 7px;margin-bottom:2px;"><span style="color:var(--color-text-secondary);">wireframes</span><input type="checkbox" checked onchange="applyWireframes(this.checked)"></label>
       <div class="param"><div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">spread radius</span><span id="sv-evspr">1.00</span></div>
       <input type="range" min="0.2" max="3" step="0.05" value="1" oninput="env.spreadRadius=+this.value;document.getElementById('sv-evspr').textContent=(+this.value).toFixed(2)"></div>
       <div class="param"><div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="color:var(--color-text-secondary);">blocks</span><span id="sv-evbc">60</span></div>
@@ -415,6 +431,27 @@ function setCamAngle(deg){
 }
 setCamAngle(15);
 
+function applyPreset(p){
+  setRateAll(p.sens);
+  setExpoAll(p.expo);
+  sens.throttle=p.throttle;
+  const slt=document.getElementById('sl-throttle');
+  if(slt){slt.value=p.throttle;paintSlider(slt);}
+  document.getElementById('sv-throttle').textContent=p.throttle.toFixed(0);
+  setCamAngle(p.cam);
+  const slc=document.getElementById('sl-camangle');
+  if(slc){slc.value=p.cam;paintSlider(slc);}
+  ctrl.deadzone=p.dead;
+  const sld=document.getElementById('sl-dead');
+  if(sld){sld.value=p.dead;paintSlider(sld);}
+  document.getElementById('sv-dead').textContent=p.dead.toFixed(3);
+  // also move the "all PRY" master sliders so they reflect the preset
+  const rateAll=document.querySelector('input[oninput^="setRateAll"]');
+  if(rateAll){rateAll.value=p.sens;paintSlider(rateAll);}
+  const expoAll=document.querySelector('input[oninput^="setExpoAll"]');
+  if(expoAll){expoAll.value=p.expo;paintSlider(expoAll);}
+}
+
 function setFOV(deg){
   document.getElementById('sv-fov').textContent=deg+'°';
   camera.fov=deg;
@@ -437,7 +474,7 @@ function setRateAll(v){
   const txt=(+v).toFixed(1);
   ['pitch','roll','yaw'].forEach(k=>{
     const sl=document.getElementById('sl-'+k);
-    if(sl) sl.value=v;
+    if(sl){sl.value=v;paintSlider(sl);}
     const lbl=document.getElementById('sv-'+k);
     if(lbl) lbl.textContent=txt;
   });
@@ -449,7 +486,7 @@ function setExpoAll(v){
   const txt=(+v).toFixed(2);
   ['pitch','roll','yaw'].forEach(k=>{
     const sl=document.getElementById('sl-expo-'+k);
-    if(sl) sl.value=v;
+    if(sl){sl.value=v;paintSlider(sl);}
     const lbl=document.getElementById('sv-expo-'+k);
     if(lbl) lbl.textContent=txt;
   });
@@ -481,7 +518,8 @@ const env={
   blockCount:60, pillarCount:45, megaCount:5, ultraCount:5,
   scaffoldCount:22, skyScaffoldCount:34,
   starCount:200, spreadRadius:1.0,
-  fallingFlowers:false, fallingCount:80
+  fallingFlowers:false, fallingCount:80,
+  wireframes:true
 };
 const envPalette=[0xff66bb,0xff3377,0xffaa44,0xffee66,0xaaff66,0x66ddff,0xbb66ff,0xff99cc,0xff5555,0xffffff];
 
@@ -523,6 +561,16 @@ function rebuildGround(){
   floorGroup=new THREE.Group();
   floorGroup.position.y=-15;
   floorGroup.add(mesh);
+  // soft-pink solid floor disc (visible even with wireframes off)
+  const disc=new THREE.Mesh(
+    new THREE.CircleGeometry(R,96),
+    new THREE.MeshLambertMaterial({color:0xffb6d5,side:THREE.DoubleSide})
+  );
+  disc.rotation.x=-Math.PI/2;
+  disc.position.y=-0.2;
+  disc.userData.pinkFloor=true;
+  disc.visible=!env.wireframes;
+  floorGroup.add(disc);
   scene.add(floorGroup);
 }
 rebuildGround();
@@ -719,6 +767,14 @@ function spawnStructures(){
   }
 }
 
+function applyWireframes(on){
+  env.wireframes=on;
+  scene.traverse(o=>{
+    if(o.userData&&o.userData.pinkFloor) o.visible=!on;
+    else if(o.isLine||o.isLineSegments) o.visible=on;
+  });
+}
+
 function regenerateEnvironment(){
   while(envRoot.children.length){
     const c=envRoot.children[0];
@@ -730,6 +786,7 @@ function regenerateEnvironment(){
   spawnStars();
   spawnFlowers();
   spawnStructures();
+  applyWireframes(env.wireframes);
 }
 regenerateEnvironment();
 
@@ -1124,15 +1181,18 @@ function setDeskKnob(side,x,y){
   const k=wrap.querySelector('.knob');
   const w=wrap.clientWidth, h=wrap.clientHeight;
   const cx=Math.max(-1,Math.min(1,x)), cy=Math.max(-1,Math.min(1,y));
-  k.style.left=(w/2 + cx*(w/2 - 5))+'px';
-  k.style.top =(h/2 + cy*(h/2 - 5))+'px';
+  // knob center maps to the full box edge (overhang is clipped by overflow:hidden)
+  k.style.left=(w/2 + cx*w/2)+'px';
+  k.style.top =(h/2 + cy*h/2)+'px';
 }
 function animate(){
   requestAnimationFrame(animate);
   const{pitch,roll,yaw,throttle}=getAxes();
-  // desktop stick GUI (mode 2): left = yaw / throttle(up=+), right = roll / pitch
+  // desktop stick GUI (mode 2): left = yaw / throttle(up=+), right = roll / pitch(up=+)
   setDeskKnob('left', yaw, 1-2*throttle);
-  setDeskKnob('right', roll, pitch);
+  setDeskKnob('right', roll, -pitch);
+  const dbg=document.getElementById('desk-dbg');
+  if(dbg&&dbg.offsetParent!==null) dbg.textContent='yaw '+yaw.toFixed(2)+'  thr '+throttle.toFixed(2)+'  roll '+roll.toFixed(2)+'  pitch '+pitch.toFixed(2);
   const dt=1/60;
   if(pitch||roll||yaw){
     const ep=applyExpo(pitch,expo.pitch), er=applyExpo(roll,expo.roll), ey=applyExpo(yaw,expo.yaw);
@@ -1208,5 +1268,16 @@ function animate(){
   document.getElementById('att').textContent=`yaw ${r2d(euler.y)}°  pitch ${r2d(euler.x)}°  roll ${r2d(euler.z)}°  alt ${alt}  spd ${spd}`;
   renderer.render(scene,camera);
 }
+// paint .param sliders with a left-fill bar based on current value
+function paintSlider(el){
+  const min=+el.min, max=+el.max, v=+el.value;
+  const pct=max>min?((v-min)/(max-min))*100:0;
+  el.style.background=`linear-gradient(to right, rgba(255,102,187,0.30) 0%, rgba(255,102,187,0.30) ${pct}%, transparent ${pct}%)`;
+}
+document.querySelectorAll('.param > input[type=range]').forEach(el=>{
+  paintSlider(el);
+  el.addEventListener('input',()=>paintSlider(el));
+});
+
 animate();
 </script>
